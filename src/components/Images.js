@@ -1,17 +1,19 @@
 import React, {Component} from "react";
 import axios from 'axios';
-import {Row, Col, Alert} from 'antd';
-
-require('dotenv').config();
+import {Row, Col, Alert, Pagination} from 'antd';
 
 export default class Images extends Component {
+    static SEARCH_PHOTOS_URL = 'https://api.unsplash.com/search/photos';
+    static GET_PHOTOS_URL = 'https://api.unsplash.com/photos';
+
     constructor(props) {
         super(props);
-        this.state = {images: [], isError: false};
+        this.state = {images: [], isError: false, pagesCount: 1};
+        const SEARCH_PHOTOS_URL = "";
     }
 
     componentDidMount() {
-        axios.get(process.env.REACT_APP_UNSPLASH_API_KEY_GET_PHOTOS)
+        axios.get(Images.GET_PHOTOS_URL, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY}})
             .then((response) => {
                 this.setState({images: response.data});
             })
@@ -20,19 +22,24 @@ export default class Images extends Component {
                 console.log(error);
             });
     }
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const {term = ''} = this.props;
 
-        if(term !== '') {
-            this.searchImages(term);
+    componentWillUpdate(nextProps, nextState, nextContext) {
+        if (nextProps.term && nextProps.terms !== this.props.term && nextState.images === this.state.images) {
+            this.searchImages(nextProps.term)
         }
     }
 
-    searchImages = (term) => {
-        axios.get(process.env.REACT_APP_UNSPLASH_API_KEY_SEARCH_PHOTOS + `&query=${term}`)
+    searchImages = (term, page = 1, pageSize = 10) => {
+        axios.get(Images.SEARCH_PHOTOS_URL, {
+            params: {
+                client_id: process.env.REACT_APP_UNSPLASH_API_KEY,
+                query: term,
+                page: page,
+                per_page: pageSize
+            }
+        })
             .then((response) => {
-                console.log(response);
-                this.setState({images: response.data.results});
+                this.setState({images: response.data.results, pagesCount: response.data.total_pages});
             })
             .catch((error) => {
                 this.setState({isError: true});
@@ -40,31 +47,41 @@ export default class Images extends Component {
             });
     };
 
+    itemPagination = (page, pageSize) => {
+        this.searchImages(this.props.term, page, pageSize);
+    };
+
     render() {
-        const {isError = false} = this.state;
-        const {images = []} = this.state;
+        const {isError = false, images = [], pagesCount = 1} = this.state;
 
         return (
-            <Row>
-                {(isError === true) ?
-                    < Col span={24}>
-                        <Alert
-                            message="Ошибка"
-                            description="Попробуйте проверить соединение с интернетом или перезагрузить"
-                            type="error"
-                            closable
-                        />
-                    </Col>
-                    : null
-                }
-                {images.map((image, i) => {
-                    return (
-                        <Col span={8} key={i}>
-                            <img width={320} height={240} src={image.urls.small} alt={image.alt_description}/>
+            <div>
+                <Row>
+                    {(isError === true) ?
+                        < Col span={24}>
+                            <Alert
+                                message="Ошибка"
+                                description="Попробуйте проверить соединение с интернетом или перезагрузить"
+                                type="error"
+                                closable
+                            />
                         </Col>
-                    )
-                })}
-            </Row>
+                        : null
+                    }
+                    {images.map((image, i) => {
+                        return (
+                            <Col span={8} key={i}>
+                                <img width={320} height={240} src={image.urls.small} alt={image.alt_description}/>
+                            </Col>
+                        )
+                    })}
+                </Row>
+                <Row>
+                    <Col span={24}>
+                        <Pagination defaultCurrent={1} total={pagesCount} onChange={this.itemPagination}/>
+                    </Col>
+                </Row>
+            </div>
         );
     }
 }
