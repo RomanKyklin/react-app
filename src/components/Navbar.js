@@ -7,15 +7,16 @@ export default class Navbar extends Component {
     constructor(props) {
         super(props);
         this.state = {term: ''};
-        this.handleSearch = this.handleSearch.bind(this);
-        this.handleChange = this.handleChange.bind(this);
     }
-    handleSearch() {
-        this.props.onNavbar(this.state.term);
-    }
-    handleChange(event) {
+
+    handleSearch = () => {
+        const {term = ""} = this.state;
+        this.props.onNavbar(term);
+    };
+    handleChange = (event) => {
         this.setState({term: event.target.value});
-    }
+    };
+
     render() {
         return (
             <Header>
