@@ -2,20 +2,26 @@ import React, {Component} from "react";
 import axios from 'axios';
 import {Row, Col, Alert, Pagination} from 'antd';
 
-export default class Images extends Component {
-    static SEARCH_PHOTOS_URL = 'https://api.unsplash.com/search/photos';
-    static GET_PHOTOS_URL = 'https://api.unsplash.com/photos';
+const _ = require('lodash');
 
+export default class Images extends Component {
     constructor(props) {
         super(props);
-        this.state = {images: [], isError: false, pagesCount: 1};
-        const SEARCH_PHOTOS_URL = "";
+        this.SEARCH_PHOTOS_URL = 'https://api.unsplash.com/search/photos';
+        this.GET_PHOTOS_URL = 'https://api.unsplash.com/photos';
+        this.state = {images: [], isError: false, totalPages: 1, SEARCH_PHOTOS_URL: 'https://api.unsplash.com/search/photos'};
     }
 
     componentDidMount() {
-        axios.get(Images.GET_PHOTOS_URL, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY}})
+        axios.get(this.GET_PHOTOS_URL, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY}})
             .then((response) => {
-                this.setState({images: response.data});
+                const images = _.get(response, "data", []);
+
+                if(!Array.isArray(images)) {
+                    this.setState({isError: true});
+                    return;
+                }
+                this.setState({images: _.get(response, "data", [])});
             })
             .catch((error) => {
                 this.setState({isError: true});
@@ -29,17 +35,27 @@ export default class Images extends Component {
         }
     }
 
-    searchImages = (term, page = 1, pageSize = 10) => {
-        axios.get(Images.SEARCH_PHOTOS_URL, {
+    searchImages = (query, page = 1, per_page = 10) => {
+        axios.get(this.SEARCH_PHOTOS_URL, {
             params: {
                 client_id: process.env.REACT_APP_UNSPLASH_API_KEY,
-                query: term,
-                page: page,
-                per_page: pageSize
+                query,
+                page,
+                per_page
             }
         })
             .then((response) => {
-                this.setState({images: response.data.results, pagesCount: response.data.total_pages});
+                const images = _.get(response, "data.results", []);
+                const totalPages = _.get(response, "data.total_pages", 1);
+
+                if(!Array.isArray(images) || !Number.isInteger(totalPages)) {
+                    this.setState({isError: true});
+                    return;
+                }
+                this.setState({
+                    images: _.get(response, "data.results", []),
+                    totalPages: _.get(response, "data.total_pages", 1)
+                });
             })
             .catch((error) => {
                 this.setState({isError: true});
@@ -52,10 +68,9 @@ export default class Images extends Component {
     };
 
     render() {
-        const {isError = false, images = [], pagesCount = 1} = this.state;
+        const {isError = false, images = [], totalPages = 1} = this.state;
 
         return (
-            <div>
                 <Row>
                     {(isError === true) ?
                         < Col span={24}>
@@ -71,17 +86,15 @@ export default class Images extends Component {
                     {images.map((image, i) => {
                         return (
                             <Col span={8} key={i}>
-                                <img width={320} height={240} src={image.urls.small} alt={image.alt_description}/>
+                                <img width={320} height={240} src={_.get(image, "urls.small", '')}
+                                     alt={_.get(image, "alt_description", '')}/>
                             </Col>
                         )
                     })}
-                </Row>
-                <Row>
                     <Col span={24}>
-                        <Pagination defaultCurrent={1} total={pagesCount} onChange={this.itemPagination}/>
+                        <Pagination defaultCurrent={1} total={totalPages} onChange={this.itemPagination}/>
                     </Col>
                 </Row>
-            </div>
         );
     }
 }
