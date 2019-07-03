@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import axios from 'axios';
 import {Row, Col, Alert, Pagination} from 'antd';
-
 const _ = require('lodash');
 
 export default class Images extends Component {
