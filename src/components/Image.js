@@ -1,16 +1,14 @@
 import React, {Component} from "react";
 import {Card} from 'antd';
-import {Row, Col, Alert} from 'antd';
+import {Row, Col, Alert, Spin} from 'antd';
 import axios from 'axios';
-import {Lines} from 'react-preloaders';
 
-const {Meta} = Card;
 const _ = require('lodash');
 
 export default class Image extends Component {
     constructor(props) {
         super(props);
-        this.state = {image: {}, isError: false};
+        this.state = {image: {}, isError: false, isLoading: true};
         this.GET_PHOTOS_URL = "https://api.unsplash.com/photos/";
     }
 
@@ -29,19 +27,26 @@ export default class Image extends Component {
                     image: {
                         src: _.get(responseImage, "urls.small", ''),
                         description: _.get(responseImage, "alt_description", '')
-                    }
+                    },
+                    isLoading: false
                 })
             })
             .catch((error) => {
-                this.setState({isError: true});
+                this.setState({isError: true, isLoading: false});
                 console.log(error);
             });
     }
 
     render() {
-        const {isError = false, image} = this.state;
+        const {isError = false, image, isLoading = true} = this.state;
 
-        return (
+        return isLoading ? (
+            <Row type="flex" justify="center">
+                <Col span={12}>
+                    <Spin style={{display: "block"}}/>
+                </Col>
+            </Row>
+        ) : (
             <Row type="flex" justify="center">
                 {(isError === true) ?
                     < Col span={12}>
@@ -62,10 +67,8 @@ export default class Image extends Component {
                                     alt={image.description}
                                     style={{margin: 0}}/>}
                     >
-                        <Meta title="Europe Street beat" description="www.instagram.com"/>
                     </Card>
                 </Col>
-                <Lines/>
             </Row>
         )
     }

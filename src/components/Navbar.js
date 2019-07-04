@@ -13,9 +13,8 @@ export default class Navbar extends Component {
         const {term = ""} = this.state;
         this.props.onNavbar(term);
     };
-    handleChange = (event) => {
-        this.setState({term: event.target.value});
-    };
+
+    handleChange = (event) => this.setState({term: event.target.value});
 
     render() {
         return (

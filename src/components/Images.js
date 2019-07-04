@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import axios from 'axios';
-import {Row, Col, Alert, Pagination} from 'antd';
+import {Row, Col, Alert, Pagination, Spin} from 'antd';
 import {Link} from "react-router-dom";
 
 const _ = require('lodash');
@@ -14,6 +14,7 @@ export default class Images extends Component {
             images: [],
             isError: false,
             totalPages: 1,
+            isLoading: true
         };
     }
 
@@ -23,13 +24,13 @@ export default class Images extends Component {
                 const images = _.get(response, "data", []);
 
                 if (!Array.isArray(images)) {
-                    this.setState({isError: true});
+                    this.setState({isError: true, isLoading: false});
                     return;
                 }
-                this.setState({images: _.get(response, "data", [])});
+                this.setState({images: _.get(response, "data", []), isLoading: false});
             })
             .catch((error) => {
-                this.setState({isError: true});
+                this.setState({isError: true, isLoading: false});
                 console.log(error);
             });
     }
@@ -59,11 +60,12 @@ export default class Images extends Component {
                 }
                 this.setState({
                     images: _.get(response, "data.results", []),
-                    totalPages: _.get(response, "data.total_pages", 1)
+                    totalPages: _.get(response, "data.total_pages", 1),
+                    isLoading: false
                 });
             })
             .catch((error) => {
-                this.setState({isError: true});
+                this.setState({isError: true, isLoading: false});
                 console.log(error);
             });
     };
@@ -71,9 +73,15 @@ export default class Images extends Component {
     itemPagination = (page, pageSize) => this.searchImages(this.props.term, page, pageSize);
 
     render() {
-        const {isError = false, images = [], totalPages = 1} = this.state;
+        const {isError = false, images = [], totalPages = 1, isLoading = true} = this.state;
 
-        return (
+        return isLoading ? (
+            <Row type="flex" justify="center">
+                <Col span={12}>
+                    <Spin style={{display: "block"}}/>
+                </Col>
+            </Row>
+        ) : (
             <Row>
                 {(isError === true) ?
                     < Col span={24}>

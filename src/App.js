@@ -7,6 +7,7 @@ import Images from "./components/Images";
 import {BrowserRouter as Router, Route} from "react-router-dom";
 import axios from 'axios';
 import Image from "./components/Image";
+import Profile from "./components/Profile";
 
 const {Content, Footer} = Layout;
 const _ = require('lodash');
@@ -17,11 +18,9 @@ class App extends Component {
     };
     REACT_OAUTH_URL = 'https://unsplash.com/oauth/authorize';
 
-    handleSearch = (term) => {
-        this.setState({term: term, isError: false});
-    };
+    handleSearch = (term) => this.setState({term: term, isError: false});
 
-    componentWillMount() {
+    componentDidMount() {
         this.auth();
     }
 
@@ -66,11 +65,12 @@ class App extends Component {
                         : null
                     }
                     <Router>
-                        <Route path="/image/:id" component={Image}/>
                         <Route path="/" exact render={props => <Images {...props} term={this.state.term}/>}/>
+                        <Route path="/image/:id" component={Image}/>
+                        <Route path="/profile" component={Profile}/>
                     </Router>
                 </Content>
-                <Footer style={{textAlign: 'center'}}>Ant Design ©2018 Created by Ant UED</Footer>
+                <Footer style={{textAlign: 'center'}}>©2018</Footer>
             </Layout>
         );
     }
