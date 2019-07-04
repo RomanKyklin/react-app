@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Card} from 'antd';
 import {Row, Col, Alert} from 'antd';
 import axios from 'axios';
+import {Lines} from 'react-preloaders';
 
 const {Meta} = Card;
 const _ = require('lodash');
@@ -18,13 +19,18 @@ export default class Image extends Component {
 
         axios.get(this.GET_PHOTOS_URL + id, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY}})
             .then((response) => {
-                const image = _.get(response, "data", {});
+                const responseImage = _.get(response, "data", {});
 
-                if (!(typeof image === 'object')) {
+                if (!_.isObject(responseImage) || _.isEmpty(responseImage)) {
                     this.setState({isError: true});
                     return;
                 }
-                this.setState({image})
+                this.setState({
+                    image: {
+                        src: _.get(responseImage, "urls.small", ''),
+                        description: _.get(responseImage, "alt_description", '')
+                    }
+                })
             })
             .catch((error) => {
                 this.setState({isError: true});
@@ -38,7 +44,7 @@ export default class Image extends Component {
         return (
             <Row type="flex" justify="center">
                 {(isError === true) ?
-                    < Col span={24}>
+                    < Col span={12}>
                         <Alert
                             message="Ошибка"
                             description="Картинка не найдена"
@@ -52,15 +58,15 @@ export default class Image extends Component {
                     <Card
                         hoverable
                         style={{width: 500, margin: "0 auto"}}
-                        cover={<img src={_.get(image, "urls.small", '')}
-                                    alt={_.get(image, "alt_description", '')}
+                        cover={<img src={image.src}
+                                    alt={image.description}
                                     style={{margin: 0}}/>}
                     >
                         <Meta title="Europe Street beat" description="www.instagram.com"/>
                     </Card>
                 </Col>
+                <Lines/>
             </Row>
-
         )
     }
 }
