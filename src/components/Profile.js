@@ -62,7 +62,7 @@ export default class Profile extends Component {
                             type="error"
                             closable
                         />
-                        <div style={{"text-align": "center"}}>
+                        <div style={{textAlign: "center"}}>
                             <Link to="/">Главная страница</Link>
                         </div>
                     </Col>

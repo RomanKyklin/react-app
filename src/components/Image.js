@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Card} from 'antd';
-import {Row, Col, Alert, Spin} from 'antd';
+import {Row, Col, Alert, Spin, Button} from 'antd';
 import axios from 'axios';
 
 const _ = require('lodash');
@@ -8,11 +8,45 @@ const _ = require('lodash');
 export default class Image extends Component {
     constructor(props) {
         super(props);
-        this.state = {image: {}, isError: false, isLoading: true};
+        this.state = {image: {}, isError: false, isLoading: true, isAuth: false};
         this.GET_PHOTOS_URL = "https://api.unsplash.com/photos/";
     }
 
+    getLikePhotoUrl = (photoId) => `https://api.unsplash.com/photos/${photoId}/like`;
+
+    getDislikePhotoUrl = (photoId) => `https://api.unsplash.com//photos/${photoId}/like`;
+
+    handleLike = () => {
+        const {image = {}} = this.state;
+        const access_token = localStorage.getItem('access_token');
+
+        axios.post(this.getLikePhotoUrl(image.id), {access_token})
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    };
+
+    handleDislike = () => {
+        const {image = {}} = this.state;
+        const access_token = localStorage.getItem('access_token');
+
+        axios.delete(this.getDislikePhotoUrl(image.id), {params: {access_token}})
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    };
+
     componentDidMount() {
+        if (localStorage.getItem('access_token')) {
+            this.setState({isAuth: true});
+        }
+
         const {id = ''} = _.get(this.props, 'match.params', '');
 
         axios.get(this.GET_PHOTOS_URL + id, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY}})
@@ -23,13 +57,17 @@ export default class Image extends Component {
                     this.setState({isError: true});
                     return;
                 }
+
                 this.setState({
                     image: {
+                        id: _.get(responseImage, 'id', ''),
                         src: _.get(responseImage, "urls.small", ''),
-                        description: _.get(responseImage, "alt_description", '')
+                        description: _.get(responseImage, "alt_description", ''),
+                        likes: _.get(responseImage, 'likes', 0),
+                        liked_by_user: _.get(responseImage, 'liked_by_user', false)
                     },
                     isLoading: false
-                })
+                });
             })
             .catch((error) => {
                 this.setState({isError: true, isLoading: false});
@@ -38,7 +76,7 @@ export default class Image extends Component {
     }
 
     render() {
-        const {isError = false, image, isLoading = true} = this.state;
+        const {isError = false, image, isLoading = true, isAuth = false} = this.state;
 
         return isLoading ? (
             <Row type="flex" justify="center">
@@ -68,6 +106,20 @@ export default class Image extends Component {
                                     style={{margin: 0}}/>}
                     >
                     </Card>
+                </Col>
+                <Col span={24}>
+                    {(isAuth === true && image.liked_by_user === true) ?
+                        <Button type="danger" size="large"
+                                style={{margin: "0 auto", display: "block"}}
+                                onClick={this.handleDislike}>Dislike {image.likes}</Button>
+                        : null
+                    }
+                    {(isAuth === true && image.liked_by_user === false) ?
+                        <Button type="danger" size="large"
+                                style={{margin: "0 auto", display: "block"}}
+                                onClick={this.handleLike}>Like {image.likes}</Button>
+                        : null
+                    }
                 </Col>
             </Row>
         )
