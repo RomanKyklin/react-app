@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Link} from "react-router-dom"
-import {Row, Col, Alert, Spin, Avatar} from 'antd';
+import {Row, Col, Alert, Avatar} from 'antd';
 import axios from 'axios';
 
 const _ = require('lodash');

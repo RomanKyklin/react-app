@@ -39,6 +39,7 @@ class App extends Component {
                 grant_type: 'authorization_code'
             }).then(response => {
                 localStorage.setItem('access_token', _.get(response, 'data.access_token', ''));
+                window.location.href = "http://localhost:3000/profile";
             }).catch(error => {
                 this.setState({isError: true});
                 console.log(error)

@@ -12,15 +12,15 @@ export default class Image extends Component {
         this.GET_PHOTOS_URL = "https://api.unsplash.com/photos/";
     }
 
-    getLikePhotoUrl = (photoId) => `https://api.unsplash.com/photos/${photoId}/like`;
+    getLikePhotoUrl = (photoId) => `${this.GET_PHOTOS_URL}${photoId}/like`;
 
-    getDislikePhotoUrl = (photoId) => `https://api.unsplash.com//photos/${photoId}/like`;
+    getDislikePhotoUrl = (photoId) => `${this.GET_PHOTOS_URL}${photoId}/like`;
 
     handleLike = () => {
         const {image = {}} = this.state;
         const access_token = localStorage.getItem('access_token');
 
-        axios.post(this.getLikePhotoUrl(image.id), {access_token})
+        axios.post(this.getLikePhotoUrl(image.id),{access_token})
             .then(response => {
                 console.log(response);
             })
@@ -108,13 +108,13 @@ export default class Image extends Component {
                     </Card>
                 </Col>
                 <Col span={24}>
-                    {(isAuth === true && image.liked_by_user === true) ?
+                    {(isAuth && image.liked_by_user) ?
                         <Button type="danger" size="large"
                                 style={{margin: "0 auto", display: "block"}}
                                 onClick={this.handleDislike}>Dislike {image.likes}</Button>
                         : null
                     }
-                    {(isAuth === true && image.liked_by_user === false) ?
+                    {(isAuth && !image.liked_by_user) ?
                         <Button type="danger" size="large"
                                 style={{margin: "0 auto", display: "block"}}
                                 onClick={this.handleLike}>Like {image.likes}</Button>
