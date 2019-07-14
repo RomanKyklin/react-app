@@ -1,4 +1,4 @@
-import {Layout, Menu, Input, Button, Col, Spin, Row} from 'antd';
+import {Layout, Menu, Input, Button, Col, Spin, Row, Alert} from 'antd';
 import React, {Component} from 'react';
 import axios from 'axios';
 
@@ -27,11 +27,6 @@ export default class Navbar extends Component {
             })
     }
 
-    componentWillUpdate(nextProps, nextState, nextContext) {
-        console.log(this.state);
-        console.log(nextState.images);
-    }
-
     handleSearch = () => {
         const {term = ""} = this.state;
         window.location.href = `http://localhost:3000/images/${term}`;
@@ -53,14 +48,25 @@ export default class Navbar extends Component {
                     this.setState({images, isLoading: false});
                 })
                 .catch(error => {
-                    this.setState({isError: true, isLoading: false})
+                    this.setState({isError: true, isLoading: false});
                     return;
                 });
         }, 1000);
     };
 
     render() {
-        const {images = [], isLoading = true} = this.state;
+        const {images = [], isLoading = true, isError = false} = this.state;
+
+        if(isError) {
+            return (
+                <Alert
+                    message="Ошибка"
+                    description="Попробуйте проверить соединение с интернетом или перезагрузить"
+                    type="error"
+                    closable
+                />
+            )
+        }
 
         return isLoading ? (
             <Row type="flex" justify="center">
