@@ -18,8 +18,6 @@ class App extends Component {
     };
     REACT_OAUTH_URL = 'https://unsplash.com/oauth/authorize';
 
-    handleSearch = (term) => this.setState({term: term, isError: false});
-
     componentDidMount() {
         this.auth();
     }
@@ -54,7 +52,6 @@ class App extends Component {
 
         return (
             <Layout className="layout">
-                <Navbar onNavbar={this.handleSearch}/>
                 <Content>
                     {(isError === true) ?
                         <Alert
@@ -66,7 +63,8 @@ class App extends Component {
                         : null
                     }
                     <Router>
-                        <Route path="/" exact render={props => <Images {...props} term={this.state.term}/>}/>
+                        <Route path="/" exact component={Navbar}/>
+                        <Route path="/images/:term?" component={Images}/>
                         <Route path="/image/:id" component={Image}/>
                         <Route path="/profile" component={Profile}/>
                     </Router>

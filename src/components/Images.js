@@ -23,6 +23,11 @@ export default class Images extends Component {
             .then((response) => {
                 const images = _.get(response, "data", []);
 
+                if (this.props.match.params.term) {
+                    this.searchImages(this.props.match.params.term);
+                    return;
+                }
+
                 if (!Array.isArray(images)) {
                     this.setState({isError: true, isLoading: false});
                     return;
@@ -33,12 +38,6 @@ export default class Images extends Component {
                 this.setState({isError: true, isLoading: false});
                 console.log(error);
             });
-    }
-
-    componentWillUpdate(nextProps, nextState, nextContext) {
-        if (nextProps.term && nextProps.term !== this.props.term) {
-            this.searchImages(nextProps.term)
-        }
     }
 
     searchImages = (query, page = 1, per_page = 10) => {
@@ -70,7 +69,7 @@ export default class Images extends Component {
             });
     };
 
-    itemPagination = (page, pageSize) => this.searchImages(this.props.term, page, pageSize);
+    itemPagination = (page, pageSize) => this.searchImages(this.props.match.params.term, page, pageSize);
 
     render() {
         const {isError = false, images = [], totalPages = 1, isLoading = true} = this.state;
