@@ -54,6 +54,7 @@ export default class Navbar extends Component {
                 })
                 .catch(error => {
                     this.setState({isError: true, isLoading: false})
+                    return;
                 });
         }, 1000);
     };
