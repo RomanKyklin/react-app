@@ -25,8 +25,8 @@ class App extends Component {
     auth = () => {
         const urlParams = new URLSearchParams(window.location.search);
 
-        if(localStorage.getItem('access_token')) {
-           return false;
+        if (localStorage.getItem('access_token')) {
+            return false;
         }
         if (urlParams.get('code')) {
             axios.post('https://unsplash.com/oauth/token', {
@@ -50,18 +50,20 @@ class App extends Component {
     render() {
         const {isError = false} = this.state;
 
+        if (isError) {
+            return (
+                <Alert
+                    message="Ошибка авторизации"
+                    description="Попробуйте проверить соединение с интернетом или перезагрузить"
+                    type="error"
+                    closable
+                />
+            );
+        }
+
         return (
             <Layout className="layout">
                 <Content>
-                    {(isError === true) ?
-                        <Alert
-                            message="Ошибка авторизации"
-                            description="Попробуйте проверить соединение с интернетом или перезагрузить"
-                            type="error"
-                            closable
-                        />
-                        : null
-                    }
                     <Router>
                         <Route path="/" exact component={Navbar}/>
                         <Route path="/images/:term?" component={Images}/>

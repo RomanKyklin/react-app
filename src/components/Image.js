@@ -20,7 +20,7 @@ export default class Image extends Component {
         const {image = {}} = this.state;
         const access_token = localStorage.getItem('access_token');
 
-        axios.post(this.getLikePhotoUrl(image.id),{access_token})
+        axios.post(this.getLikePhotoUrl(image.id), {access_token})
             .then(response => {
                 console.log(response);
             })
@@ -78,6 +78,19 @@ export default class Image extends Component {
     render() {
         const {isError = false, image, isLoading = true, isAuth = false} = this.state;
 
+        if (isError) {
+            return (
+                < Col span={12}>
+                    <Alert
+                        message="Ошибка"
+                        description="Картинка не найдена"
+                        type="error"
+                        closable
+                    />
+                </Col>
+            );
+        }
+
         return isLoading ? (
             <Row type="flex" justify="center">
                 <Col span={12}>
@@ -86,17 +99,6 @@ export default class Image extends Component {
             </Row>
         ) : (
             <Row type="flex" justify="center">
-                {(isError === true) ?
-                    < Col span={12}>
-                        <Alert
-                            message="Ошибка"
-                            description="Картинка не найдена"
-                            type="error"
-                            closable
-                        />
-                    </Col>
-                    : null
-                }
                 <Col span={24}>
                     <Card
                         hoverable

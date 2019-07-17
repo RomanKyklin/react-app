@@ -8,23 +8,13 @@ const {Header} = Layout;
 export default class Navbar extends Component {
     constructor(props) {
         super(props);
-        this.state = {images: {}, isError: false, isLoading: true};
-        this.RANDOM_PHOTO_URL = 'https://api.unsplash.com/photos/random'
+        this.state = {images: {}, randomImages: {}, isError: false, isLoading: true};
+        this.RANDOM_PHOTO_URL = 'https://api.unsplash.com/photos/random';
+        this.GET_PHOTOS_URL = 'https://api.unsplash.com/photos';
     }
 
     componentDidMount() {
-        axios.get(this.RANDOM_PHOTO_URL, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY, count: 30}})
-            .then(response => {
-                if (!_.isArray(response.data)) {
-                    this.setState({isError: true, isLoading: false});
-                    return;
-                }
-                this.setState({images: _.get(response, 'data', {}), isLoading: false});
-                this.changeRandomPhoto();
-            })
-            .catch(error => {
-                this.setState({isError: true, isLoading: false})
-            })
+        this.getPhotos(100);
     }
 
     handleSearch = () => {
@@ -35,29 +25,75 @@ export default class Navbar extends Component {
     handleChange = (event) => this.setState({term: event.target.value});
 
     changeRandomPhoto = () => {
-        setInterval(() => {
-            axios.get(this.RANDOM_PHOTO_URL, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY, count: 1}})
-                .then(response => {
-                    if (!_.isArray(response.data)) {
-                        this.setState({isError: true, isLoading: false});
-                        return;
-                    }
-                    const {images = {}} = this.state;
+        const {images = []} = this.state;
+        let randomImages = this.state.randomImages;
+        const randomImagesKey = Math.floor(Math.random() * (randomImages.length));
+        const imagesKey = Math.floor(Math.random() * (images.length));
 
-                    images[Math.floor(Math.random() * (images.length))] = response.data[0];
-                    this.setState({images, isLoading: false});
-                })
-                .catch(error => {
+        if (randomImages.length > 0 && randomImages[randomImagesKey].id === images[imagesKey].id) {
+            randomImages = randomImages.filter((value, index) => index !== randomImagesKey);
+            this.setState({images, randomImages});
+            return;
+        }
+
+        if (randomImages.length > 0) {
+            images[imagesKey] = randomImages[randomImagesKey];
+            randomImages = randomImages.filter((value, index) => index !== randomImagesKey);
+            this.setState({images, randomImages});
+        } else {
+            clearInterval(this.timerId);
+            this.getRandomPhotos();
+        }
+    };
+
+    getPhotos = (count) => {
+        axios.get(this.GET_PHOTOS_URL, {params: {client_id: process.env.REACT_APP_UNSPLASH_API_KEY, per_page: count}})
+            .then(response => {
+                if (!_.isArray(response.data)) {
                     this.setState({isError: true, isLoading: false});
                     return;
-                });
-        }, 1000);
+                }
+                this.setState({images: _.get(response, 'data', []), isLoading: false}, () => this.getRandomPhotos());
+            })
+            .catch(error => {
+                this.setState({isError: true, isLoading: false})
+            })
     };
+
+    getRandomPhotos = (count = 30) => {
+        axios.get(this.RANDOM_PHOTO_URL, {
+            params: {
+                client_id: process.env.REACT_APP_UNSPLASH_API_KEY,
+                count: count
+            }
+        })
+            .then(response => {
+                if (!_.isArray(response.data)) {
+                    this.setState({isError: true, isLoading: false});
+                    return;
+                }
+                this.setState({
+                    randomImages: _.get(response, 'data', []),
+                    isLoading: false
+                }, () => {
+                    this.timerId = setInterval(() => this.changeRandomPhoto(), 1000);
+                });
+                return;
+            })
+            .catch(error => {
+                this.setState({isError: true, isLoading: false});
+                return;
+            });
+    };
+
+    componentWillUnmount() {
+        clearInterval(this.timerId);
+    }
 
     render() {
         const {images = [], isLoading = true, isError = false} = this.state;
 
-        if(isError) {
+        if (isError) {
             return (
                 <Alert
                     message="Ошибка"
@@ -75,10 +111,10 @@ export default class Navbar extends Component {
                 </Col>
             </Row>
         ) : (
-            <Header style={{height: '360px', textAlign: 'center', padding: 0}}>
+            <Header style={{height: '600px', textAlign: 'center', padding: 0}}>
                 {images.map((image) => {
                     return (
-                        <img src={image.urls.small} style={{width: '10%', height: '120px'}} key={image.id}/>
+                        <img src={image.urls.small} style={{width: '10%', height: '11%'}} key={image.id}/>
                     )
                 })}
                 <Menu

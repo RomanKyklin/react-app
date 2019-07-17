@@ -74,6 +74,19 @@ export default class Images extends Component {
     render() {
         const {isError = false, images = [], totalPages = 1, isLoading = true} = this.state;
 
+        if (isError) {
+            return (
+                < Col span={24}>
+                    <Alert
+                        message="Ошибка"
+                        description="Попробуйте проверить соединение с интернетом или перезагрузить"
+                        type="error"
+                        closable
+                    />
+                </Col>
+            );
+        }
+
         return isLoading ? (
             <Row type="flex" justify="center">
                 <Col span={12}>
@@ -82,17 +95,6 @@ export default class Images extends Component {
             </Row>
         ) : (
             <Row>
-                {(isError === true) ?
-                    < Col span={24}>
-                        <Alert
-                            message="Ошибка"
-                            description="Попробуйте проверить соединение с интернетом или перезагрузить"
-                            type="error"
-                            closable
-                        />
-                    </Col>
-                    : null
-                }
                 {images.map((image, i) => {
                     return (
                         <Col span={8} key={i}>
