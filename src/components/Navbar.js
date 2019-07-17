@@ -1,4 +1,4 @@
-import {Layout, Menu, Input, Button, Col, Spin, Row, Alert} from 'antd';
+import {Layout, Menu, Input, Button, Col, Spin, Row, Alert, Modal} from 'antd';
 import React, {Component} from 'react';
 import axios from 'axios';
 
@@ -8,7 +8,7 @@ const {Header} = Layout;
 export default class Navbar extends Component {
     constructor(props) {
         super(props);
-        this.state = {images: {}, randomImages: {}, isError: false, isLoading: true};
+        this.state = {images: {}, randomImages: {}, isError: false, isLoading: true, visible: false, profile: {}};
         this.RANDOM_PHOTO_URL = 'https://api.unsplash.com/photos/random';
         this.GET_PHOTOS_URL = 'https://api.unsplash.com/photos';
     }
@@ -86,12 +86,31 @@ export default class Navbar extends Component {
             });
     };
 
+    showModal = user => {
+        this.setState({
+            visible: true,
+            profile: user
+        });
+    };
+
+    handleOk = e => {
+        this.setState({
+            visible: false,
+        });
+    };
+
+    handleCancel = e => {
+        this.setState({
+            visible: false,
+        });
+    };
+
     componentWillUnmount() {
         clearInterval(this.timerId);
     }
 
     render() {
-        const {images = [], isLoading = true, isError = false} = this.state;
+        const {images = [], isLoading = true, isError = false, profile = {}} = this.state;
 
         if (isError) {
             return (
@@ -112,9 +131,23 @@ export default class Navbar extends Component {
             </Row>
         ) : (
             <Header style={{height: '600px', textAlign: 'center', padding: 0}}>
+                <Modal
+                    title="User profile"
+                    visible={this.state.visible}
+                    onCancel={this.handleCancel}
+                    onOk={this.handleOk}
+                >
+                    <p>Bio: {profile.bio}</p>
+                    <p>Name: {profile.name}</p>
+                    <p>Instagram: {profile.instagram_username}</p>
+                    <p>Twitter: {profile.twitter_username}</p>
+                    <p>Total likes: {profile.total_likes}</p>
+                    <p>Total photos: {profile.total_likes}</p>
+                </Modal>
                 {images.map((image) => {
                     return (
-                        <img src={image.urls.small} style={{width: '10%', height: '11%'}} key={image.id}/>
+                        <img src={image.urls.small} style={{width: '10%', height: '11%'}} key={image.id}
+                             onClick={() => this.showModal(image.user)}/>
                     )
                 })}
                 <Menu
