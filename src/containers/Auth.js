@@ -1,18 +1,12 @@
 import React, {Component} from 'react';
 import 'antd/dist/antd.css'
-import './App.css';
-import Navbar from "./components/Navbar";
+import '../App.css';
 import {Layout, Alert} from 'antd';
-import Images from "./components/Images";
-import {BrowserRouter as Router, Route} from "react-router-dom";
 import axios from 'axios';
-import Image from "./components/Image";
-import Profile from "./components/Profile";
 
-const {Content, Footer} = Layout;
 const _ = require('lodash');
 
-class App extends Component {
+class Auth extends Component {
     state = {
         term: '',
     };
@@ -61,20 +55,8 @@ class App extends Component {
             );
         }
 
-        return (
-            <Layout className="layout">
-                <Content>
-                    <Router>
-                        <Route path="/" exact component={Navbar}/>
-                        <Route path="/images/:term?" component={Images}/>
-                        <Route path="/image/:id" component={Image}/>
-                        <Route path="/profile" component={Profile}/>
-                    </Router>
-                </Content>
-                <Footer style={{textAlign: 'center'}}>©2018</Footer>
-            </Layout>
-        );
+        return this.props.children;
     }
 }
 
-export default App;
+export default Auth;

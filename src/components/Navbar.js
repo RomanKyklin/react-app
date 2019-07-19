@@ -25,25 +25,15 @@ export default class Navbar extends Component {
     handleChange = (event) => this.setState({term: event.target.value});
 
     changeRandomPhoto = () => {
-        const {images = []} = this.state;
-        let randomImages = this.state.randomImages;
-        const randomImagesKey = Math.floor(Math.random() * (randomImages.length));
-        const imagesKey = Math.floor(Math.random() * (images.length));
-
-        if (randomImages.length > 0 && randomImages[randomImagesKey].id === images[imagesKey].id) {
-            randomImages = randomImages.filter((value, index) => index !== randomImagesKey);
-            this.setState({images, randomImages});
-            return;
-        }
-
-        if (randomImages.length > 0) {
-            images[imagesKey] = randomImages[randomImagesKey];
-            randomImages = randomImages.filter((value, index) => index !== randomImagesKey);
-            this.setState({images, randomImages});
-        } else {
+        const {images = [], randomImages = []} = this.state;
+        if (randomImages.length === 0) {
             clearInterval(this.timerId);
-            this.getRandomPhotos();
+            return this.getRandomPhotos();
         }
+        const randomIndex = Math.floor(Math.random() * (randomImages.length));
+        const randomImage = randomImages[randomIndex];
+        images[Math.floor(Math.random() * images.length)] = randomImage;
+        this.setState({images, randomImages});
     };
 
     getPhotos = (count) => {
