@@ -9,7 +9,7 @@ import {BrowserRouter as Router} from "react-router-dom";
 export default class ProjectRouter extends Component {
     render() {
         return (
-            <Router>
+            <Router basename="/react_app">
                 <Route path="/" exact component={Navbar}/>
                 <Route path="/images/:term?" component={Images}/>
                 <Route path="/image/:id" component={Image}/>

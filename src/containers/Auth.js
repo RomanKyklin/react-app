@@ -3,6 +3,7 @@ import 'antd/dist/antd.css'
 import '../App.css';
 import {Layout, Alert} from 'antd';
 import axios from 'axios';
+import { Redirect } from 'react-router'
 
 const _ = require('lodash');
 
@@ -31,7 +32,7 @@ class Auth extends Component {
                 grant_type: 'authorization_code'
             }).then(response => {
                 localStorage.setItem('access_token', _.get(response, 'data.access_token', ''));
-                window.location.href = "http://localhost:3000/profile";
+                return <Redirect to="/profile"/>;
             }).catch(error => {
                 this.setState({isError: true});
                 console.log(error)
