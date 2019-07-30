@@ -27,7 +27,7 @@ class Auth extends Component {
             axios.post('https://unsplash.com/oauth/token', {
                 client_id: process.env.REACT_APP_UNSPLASH_API_KEY,
                 client_secret: process.env.REACT_APP_UNSPLASH_SECRET_KEY,
-                redirect_uri: 'http://localhost:3000/',
+                redirect_uri: process.env.REDIRECT_URI,
                 code: urlParams.get('code'),
                 grant_type: 'authorization_code'
             }).then(response => {
