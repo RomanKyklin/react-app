@@ -38,7 +38,7 @@ class Auth extends Component {
                 console.log(error)
             });
         } else {
-            window.location.href = this.REACT_OAUTH_URL + `?client_id=${process.env.REACT_APP_UNSPLASH_API_KEY}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&response_type=code&scope=public`;
+            window.location.href = this.REACT_OAUTH_URL + `?client_id=${process.env.REACT_APP_UNSPLASH_API_KEY}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code&scope=public`;
         }
     };
 
