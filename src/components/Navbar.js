@@ -1,6 +1,7 @@
 import {Layout, Menu, Input, Button, Col, Spin, Row, Alert, Modal} from 'antd';
 import React, {Component} from 'react';
 import axios from 'axios';
+import { Redirect } from 'react-router'
 
 const _ = require('lodash');
 const {Header} = Layout;
@@ -19,7 +20,9 @@ export default class Navbar extends Component {
 
     handleSearch = () => {
         const {term = ""} = this.state;
-        window.location.href = `http://localhost:3000/images/${term}`;
+        const redirectUrl = `/images/${term}`;
+
+        return <Redirect to={redirectUrl} />;
     };
 
     handleChange = (event) => this.setState({term: event.target.value});
