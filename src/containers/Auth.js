@@ -27,7 +27,7 @@ class Auth extends Component {
             axios.post('https://unsplash.com/oauth/token', {
                 client_id: process.env.REACT_APP_UNSPLASH_API_KEY,
                 client_secret: process.env.REACT_APP_UNSPLASH_SECRET_KEY,
-                redirect_uri: process.env.REDIRECT_URI,
+                redirect_uri: 'https://romankyklin.github.io/react_app',
                 code: urlParams.get('code'),
                 grant_type: 'authorization_code'
             }).then(response => {
@@ -38,7 +38,7 @@ class Auth extends Component {
                 console.log(error)
             });
         } else {
-            window.location.href = this.REACT_OAUTH_URL + `?client_id=${process.env.REACT_APP_UNSPLASH_API_KEY}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code&scope=public`;
+            window.location.href = this.REACT_OAUTH_URL + `?client_id=${process.env.REACT_APP_UNSPLASH_API_KEY}&redirect_uri=https://romankyklin.github.io/react_app&response_type=code&scope=public`;
         }
     };
 
